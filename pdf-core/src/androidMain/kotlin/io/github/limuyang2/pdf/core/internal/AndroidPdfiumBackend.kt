@@ -224,7 +224,7 @@ internal object AndroidPdfiumBackend : PdfiumBackend {
             producer = value("Producer"),
             creationDate = value("CreationDate"),
             modificationDate = value("ModDate"),
-            language = value("Lang"),
+            language = AndroidPdfiumNative.nativeLanguage(document.value),
         )
     }
 

@@ -5,7 +5,6 @@
 #include <memory>
 #include <new>
 #include <string>
-#include <string_view>
 #include <unordered_set>
 #include <vector>
 
@@ -395,12 +394,8 @@ pdfv_status_t pdfv_get_metadata_utf16(pdfv_document_t* document,
       return PDFV_ERROR_INVALID_ARGUMENT;
     }
 
-    const auto read = [&](uint16_t* output, unsigned long bytes) {
-      return std::string_view(tag) == "Lang"
-                 ? FPDFCatalog_GetLanguage(document->handle, output, bytes)
-                 : FPDF_GetMetaText(document->handle, tag, output, bytes);
-    };
-    const unsigned long required_bytes = read(nullptr, 0);
+    const unsigned long required_bytes =
+        FPDF_GetMetaText(document->handle, tag, nullptr, 0);
     *required_units = static_cast<size_t>(required_bytes / 2);
     if (required_bytes == 0) {
       return PDFV_OK;
@@ -412,7 +407,37 @@ pdfv_status_t pdfv_get_metadata_utf16(pdfv_document_t* document,
       return PDFV_ERROR_BUFFER_TOO_SMALL;
     }
     const unsigned long written =
-        read(buffer, static_cast<unsigned long>(buffer_units * 2));
+        FPDF_GetMetaText(document->handle, tag, buffer,
+                         static_cast<unsigned long>(buffer_units * 2));
+    return written == required_bytes ? PDFV_OK : PDFV_ERROR_UNKNOWN;
+  });
+}
+
+pdfv_status_t pdfv_get_language_utf16(pdfv_document_t* document,
+                                     uint16_t* buffer,
+                                     size_t buffer_units,
+                                     size_t* required_units) {
+  return Guard([&] {
+    if (RequireDocument(document) != PDFV_OK) {
+      return PDFV_ERROR_CLOSED;
+    }
+    if (!required_units || !FitsUtf16ByteCount(buffer_units)) {
+      return PDFV_ERROR_INVALID_ARGUMENT;
+    }
+    const unsigned long required_bytes =
+        FPDFCatalog_GetLanguage(document->handle, nullptr, 0);
+    *required_units = static_cast<size_t>(required_bytes / 2);
+    if (required_bytes == 0) {
+      return PDFV_OK;
+    }
+    if (required_bytes % 2 != 0) {
+      return PDFV_ERROR_UNKNOWN;
+    }
+    if (!buffer || buffer_units < *required_units) {
+      return PDFV_ERROR_BUFFER_TOO_SMALL;
+    }
+    const unsigned long written = FPDFCatalog_GetLanguage(
+        document->handle, buffer, static_cast<unsigned long>(buffer_units * 2));
     return written == required_bytes ? PDFV_OK : PDFV_ERROR_UNKNOWN;
   });
 }

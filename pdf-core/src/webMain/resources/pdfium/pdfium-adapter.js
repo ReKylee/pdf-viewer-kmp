@@ -245,15 +245,18 @@
   function metadata(handle, tag) {
     return readUtf16(function (buffer, length) {
       var module = requireModule();
-      if (tag === "Lang") {
-        return module._FPDFCatalog_GetLanguage(handle, buffer, length);
-      }
       var tagPointer = allocateUtf8(tag);
       try {
         return module._FPDF_GetMetaText(handle, tagPointer, buffer, length);
       } finally {
         module._free(tagPointer);
       }
+    }, true);
+  }
+
+  function language(handle) {
+    return readUtf16(function (buffer, length) {
+      return requireModule()._FPDFCatalog_GetLanguage(handle, buffer, length);
     }, true);
   }
 
@@ -683,6 +686,7 @@
     close: close,
     documentInformation: documentInformation,
     metadata: metadata,
+    language: language,
     pageLabel: pageLabel,
     pageInformation: pageInformation,
     render: render,
