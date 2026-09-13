@@ -3,7 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    id("com.android.library")
+    alias(libs.plugins.androidMultiplatformLibrary)
+    alias(libs.plugins.androidLint)
     `maven-publish`
     signing
 }
@@ -11,9 +12,22 @@ plugins {
 kotlin {
     val pdfiumIosDeploymentTarget = "14.0"
 
-    androidTarget {
+    android {
+        namespace = "io.github.limuyang2.pdf.core"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
+        }
+
+        withHostTestBuilder {
+        }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
     }
 
@@ -148,26 +162,12 @@ kotlin {
             implementation(libs.wrappers.browser)
         }
 
-        getByName("androidInstrumentedTest").dependencies {
+        getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.core)
             implementation(libs.androidx.runner)
             implementation(libs.androidx.testExt.junit)
         }
     }
-}
-
-android {
-    namespace = "io.github.limuyang2.pdf.core"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    sourceSets.getByName("androidTest").java.srcDir("src/androidDeviceTest/kotlin")
 }
 
 val libraryGroup = "io.github.limuyang2"
