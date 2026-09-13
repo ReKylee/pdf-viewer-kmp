@@ -17,8 +17,8 @@ int Fail(const char* message) {
 }  // namespace
 
 int main(int argc, char** argv) {
-  if (argc != 2) {
-    return Fail("usage: pdfviewer_core_test <fixture.pdf>");
+  if (argc != 2 && argc != 3) {
+    return Fail("usage: pdfviewer_core_test <fixture.pdf> [expected-language]");
   }
 
   std::ifstream input(argv[1], std::ios::binary);
@@ -53,6 +53,24 @@ int main(int argc, char** argv) {
   }
 
   pdfv_document_info_t document_info{};
+  const std::string language = argc == 3 ? argv[2] : "";
+  size_t language_units = 0;
+  if (pdfv_get_metadata_utf16(document, "Lang", nullptr, 0, &language_units) !=
+          PDFV_ERROR_BUFFER_TOO_SMALL ||
+      language_units != language.size() + 1) {
+    return Fail("language size query failed");
+  }
+  std::vector<uint16_t> language_buffer(language_units);
+  if (pdfv_get_metadata_utf16(document, "Lang", language_buffer.data(),
+                              language_buffer.size(), &language_units) != PDFV_OK ||
+      language_buffer.back() != 0) {
+    return Fail("language read failed");
+  }
+  for (size_t index = 0; index < language.size(); ++index) {
+    if (language_buffer[index] != static_cast<unsigned char>(language[index])) {
+      return Fail("language mismatch");
+    }
+  }
   if (pdfv_get_document_info(document, &document_info) != PDFV_OK ||
       !document_info.has_version || document_info.version <= 0) {
     pdfv_close_document(document);

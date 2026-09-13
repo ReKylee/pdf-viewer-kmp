@@ -245,6 +245,9 @@
   function metadata(handle, tag) {
     return readUtf16(function (buffer, length) {
       var module = requireModule();
+      if (tag === "Lang") {
+        return module._FPDFCatalog_GetLanguage(handle, buffer, length);
+      }
       var tagPointer = allocateUtf8(tag);
       try {
         return module._FPDF_GetMetaText(handle, tagPointer, buffer, length);

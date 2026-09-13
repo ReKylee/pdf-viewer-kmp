@@ -235,6 +235,7 @@ internal object IosPdfiumBackend : PdfiumBackend {
             producer = value("Producer"),
             creationDate = value("CreationDate"),
             modificationDate = value("ModDate"),
+            language = value("Lang"),
         )
     }
 
