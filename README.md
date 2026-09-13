@@ -12,6 +12,7 @@
 | --- | --- | --- |
 | `pdf-core` | [Using PDF Core](docs/using-pdf-core.md) | [PDF Core 使用指南](docs/using-pdf-core.zh-CN.md) |
 | `pdf-viewer` | [Using PDF Viewer](docs/using-pdf-viewer.md) | [PDF Viewer 使用指南](docs/using-pdf-viewer.zh-CN.md) |
+| API reference | [Dokka](https://limuyang2.github.io/pdf-viewer-kmp/) | — |
 
 PDF Viewer KMP is a PDFium-backed Kotlin Multiplatform library for reading,
 rendering, and displaying PDF documents.
@@ -19,6 +20,13 @@ rendering, and displaying PDF documents.
 ## Demo
 
 Download the signed Android demo: [pdf-viewer-kmp-demo.apk](demo/pdf-viewer-kmp-demo.apk).
+
+The screenshots below were captured from the demo running on an OPPO Android
+device:
+
+| Demo home | PDF viewer | Search and highlighting |
+| --- | --- | --- |
+| <img src="demo/demo-home.png" alt="Android demo home screen" width="260"> | <img src="demo/pdf-viewer.png" alt="PDF displayed in the Android demo" width="260"> | <img src="demo/pdf-search.png" alt="PDF text search and result highlighting" width="260"> |
 
 The project is split into two public libraries:
 
@@ -52,10 +60,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // PDF APIs only:
-            implementation("io.github.limuyang2:pdf-core:0.2.2")
+            implementation("io.github.limuyang2:pdf-core:0.3.0")
 
             // Or the Compose viewer. pdf-core is included transitively:
-            implementation("io.github.limuyang2:pdf-viewer:0.2.2")
+            implementation("io.github.limuyang2:pdf-viewer:0.3.0")
         }
     }
 }
@@ -89,7 +97,7 @@ suspend fun renderFirstPage(pdfBytes: ByteArray): ByteArray {
             bitmap.close()
         }
     } finally {
-        document.close()
+        document.closeAndAwait()
     }
 }
 ```

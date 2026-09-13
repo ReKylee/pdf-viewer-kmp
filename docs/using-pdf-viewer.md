@@ -4,13 +4,18 @@
 `PdfDocument` as a lazy, vertically scrolling list and renders pages again as
 the zoom level changes.
 
+<p align="center">
+  <img src="../demo/pdf-viewer.png" alt="PDF displayed in the Android demo" width="320">
+  <img src="../demo/pdf-search.png" alt="PDF text search and result highlighting" width="320">
+</p>
+
 ## Dependency
 
 ```kotlin
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.limuyang2:pdf-viewer:0.2.2")
+            implementation("io.github.limuyang2:pdf-viewer:0.3.0")
         }
     }
 }
